@@ -1,7 +1,6 @@
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from SQLAlchemy import Column, String, Integer, DateTime, PrimaryKeyConstraint, ForeignKey
 
 
 database_name = "movies"
@@ -66,7 +65,7 @@ class Movie(db.Model):
     description = db.Column(db.Text)
     video_link = db.Column(db.String())
     cover_image_link = db.Column(db.String())
-    categories = db.relationship('Movie_Category',backref='movie',lazy=True,cascade="save-update, merge, delete")
+    genres = db.relationship('Movie_Genre',backref='movie',lazy=True,cascade="save-update, merge, delete")
     actors = db.relationship('Acting',backref='movie',lazy=True,cascade="save-update, merge, delete")
     def __init__(self,title,release_date,period,description,video_link=None,cover_image_link=None):
         self.title = title
@@ -86,9 +85,9 @@ class Movie(db.Model):
         return delete_record_from_db(self)
     
     def format(self):
-        categories = []
-        for category in self.categories:
-            categories.append(category.category_name)
+        movie_genres = []
+        for genre in self.genres:
+            movie_genres.append(Genre.query.get(genre.genre_id).name)
         return {
             'id':self.id,
             'title':self.title,
@@ -97,7 +96,7 @@ class Movie(db.Model):
             'description':self.description,
             'video_link':self.video_link,
             'cover_image_link':self.cover_image_link,
-            'categories': categories
+            'genres': movie_genres
         }
 
     def set_categories(self):
@@ -106,15 +105,15 @@ class Movie(db.Model):
     def add_category(self):
         pass
 
-# Category Model
-class Category(db.Model):
-    __tablename__ = "categories"
+# Genre Model
+class Genre(db.Model):
+    __tablename__ = "genres"
     id = db.Column(db.Integer,primary_key=True)
-    title = db.Column(db.String(),unique=True)
+    name = db.Column(db.String(),unique=True)
     description = db.Column(db.Text)
-    movies = db.relationship('Movie_Category',backref='category',lazy=True,cascade="save-update, merge, delete")
-    def __init__(self,title:str,description=None):
-        self.title = title
+    movies_genre = db.relationship('Movie_Genre',backref='genre',lazy=True,cascade="save-update, merge, delete")
+    def __init__(self,name:str,description=None):
+        self.name = name
         self.description = description
     
     def insert(self)->str:
@@ -125,16 +124,36 @@ class Category(db.Model):
     
     def delete(self)->str:
         return delete_record_from_db(self)
+    
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
+
+    def associated_movies(self):
+        movies = []
+        for movie_genre in self.movies_genre:
+            movie = Movie.query.get(movie_genre.movie_id)
+            movies.appen(movie.format())
+        return {
+            'success': True,
+            'movies': movies 
+        }
+
+    def add_movie_to_genre(self,movie_id:int):
+        pass
 
 # Movie_Category Model
-class Movie_Category(db.Model):
-    __tablename__ = 'movies_category'
+class Movie_Genre(db.Model):
+    __tablename__ = 'movies_genres'
     movie_id = db.Column(db.Integer,db.ForeignKey('movies.id'),primary_key=True)
-    category_id = db.Column(db.Integer,db.ForeignKey('categories.id'),primary_key=True)
+    genre_id = db.Column(db.Integer,db.ForeignKey('genres.id'),primary_key=True)
 
-    def __init__(self,movie_id:int,category:str):
+    def __init__(self,movie_id:int,genre_id:int):
         self.movie_id = movie_id
-        self.category_name = category
+        self.genre_id = genre_id
     
     def insert(self)->str:
         return insert_into_db(self)
@@ -176,7 +195,22 @@ class Actor(db.Model):
     def delete(self)->str:
         return delete_record_from_db(self)
 
+    def format(self):
+        movies = []
+        for role in self.movies:
+            movies.append(Movie.query.get(role.movie_id).format())
+        return {
+            'id': self.id,
+            'name': self.name,
+            'age': self.age,
+            'gender': self.gender,
+            'bio': self.biography,
+            'birthdate': self.birthdate,
+            'image_link': self.image_link,
+            'movies': movies
+        }
 
+# roles of actors
 # Acting Model is acossiation table to represent many to many relation ship between Actor Model and Movie Model
 class Acting(db.Model):
     __tablename__ = "acting"
