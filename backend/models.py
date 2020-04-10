@@ -17,43 +17,40 @@ def setup_db(app,database_path=database_path):
     migrate.init_app(app, db)
     
 
-def insert_into_db(model:db.Model)->str:
-    status = ""
+def insert_into_db(model:db.Model)->bool:
+    success = True
     try:
         db.session.add(model)
         db.session.commit()
-        status = "success"
     except:
-        status = "failure"
+        success = False
         db.session.rollback()
     finally:
         db.session.close()
-        return status
+        return success
 
-def update_db()->str:
-    status = ""
+def update_db()->bool:
+    success = True
     try:
         db.session.commit()
-        status = "success"
     except:
         db.session.rollback()
-        status = "failure"
+        success = False
     finally:
         db.session.close()
-        return status   
+        return success   
 
-def delete_record_from_db(model:db.Model)->str:
-    status = ""
+def delete_record_from_db(model:db.Model)->bool:
+    success = True
     try:
-        db.session.delete(self)
+        db.session.delete(model)
         db.session.commit()
-        status = "success"
     except:
-        status = "failure"
+        success = False
         db.session.rollback()
     finally:
         db.session.close()
-        return status
+        return success
 
 # Movie Model
 class Movie(db.Model):
@@ -75,13 +72,13 @@ class Movie(db.Model):
         self.description = description
         self.cover_image_link = cover_image_link
     
-    def insert(self)-> str:
+    def insert(self)-> bool:
         return insert_into_db(self)
     
-    def update(self)-> str:
+    def update(self)-> bool:
        return update_db()
     
-    def delete(self)-> str:
+    def delete(self)-> bool:
         return delete_record_from_db(self)
     
     def format(self):
@@ -99,11 +96,28 @@ class Movie(db.Model):
             'genres': movie_genres
         }
 
-    def set_categories(self):
-        pass
+    def get_genres(self):
+        movie_genres = []
+        for movie_genre in self.genres:
+            movie_genres.append(Genre.query.get(movie_genre.genre_id))   
+        return movie_genres
 
-    def add_category(self):
-        pass
+    def get_actors(self):
+        movie_actors = []
+        for movie_actor in self.actors:
+            movie_actors.append(Actor.query.get(movie_actor.actor_id)) 
+        return movie_actors
+    
+    def add_genre(self,genre_id:int)->bool:
+        new_genre = Movie_Genre(self.id,genre_id)
+        success = new_genre.insert()
+        return success
+    
+    def add_actor(self,actor_id:int,role = "")->bool:
+        new_actor = Acting(self.id,actor_id,role)  
+        success = new_actor.insert()
+        
+        return success
 
 # Genre Model
 class Genre(db.Model):
@@ -116,13 +130,13 @@ class Genre(db.Model):
         self.name = name
         self.description = description
     
-    def insert(self)->str:
+    def insert(self)->bool:
         return insert_into_db(self)
 
-    def update(self)->str:
+    def update(self)->bool:
         return update_db()
     
-    def delete(self)->str:
+    def delete(self)->bool:
         return delete_record_from_db(self)
     
     def format(self):
@@ -136,7 +150,7 @@ class Genre(db.Model):
         movies = []
         for movie_genre in self.movies_genre:
             movie = Movie.query.get(movie_genre.movie_id)
-            movies.appen(movie.format())
+            movies.append(movie.format())
         return {
             'success': True,
             'movies': movies 
@@ -144,6 +158,8 @@ class Genre(db.Model):
 
     def add_movie_to_genre(self,movie_id:int):
         pass
+
+
 
 # Movie_Category Model
 class Movie_Genre(db.Model):
@@ -155,13 +171,13 @@ class Movie_Genre(db.Model):
         self.movie_id = movie_id
         self.genre_id = genre_id
     
-    def insert(self)->str:
+    def insert(self)->bool:
         return insert_into_db(self)
 
-    def update(self)->str:
+    def update(self)->bool:
         return update_db()
     
-    def delete(self)->str:
+    def delete(self)->bool:
         return delete_record_from_db(self)
 
 
@@ -186,13 +202,13 @@ class Actor(db.Model):
         self.biography = biography
         self.birthdate = birthdate
 
-    def insert(self)->str:
+    def insert(self)->bool:
         return insert_into_db(self)
 
-    def update(self)->str:
+    def update(self)->bool:
         return update_db()
     
-    def delete(self)->str:
+    def delete(self)->bool:
         return delete_record_from_db(self)
 
     def format(self):
@@ -210,6 +226,11 @@ class Actor(db.Model):
             'movies': movies
         }
 
+    def get_movies(self):
+        movies = []
+        for role in self.movies:
+            movies.append(Movie.query.get(role.movie_id).format())
+        return movies
 # roles of actors
 # Acting Model is acossiation table to represent many to many relation ship between Actor Model and Movie Model
 class Acting(db.Model):
@@ -223,11 +244,11 @@ class Acting(db.Model):
         self.actor_id = actor_id
         self.role_name = role_name
     
-    def insert(self)->str:
+    def insert(self)->bool:
         return insert_into_db(self)
 
-    def update(self)->str:
+    def update(self)->bool:
         return update_db()
     
-    def delete(self)->str:
+    def delete(self)->bool:
         return delete_record_from_db(self)

@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify, abort
-from models import setup_db, Movie, Actor, Genre
+from models import setup_db, Movie, Actor, Genre, Movie_Genre
 from datetime import date
 
 
 app = Flask(__name__)
 setup_db(app)
 
-# movies endpoints
-@app.route('/movies')
+################################################################################################
+#####################################  Movie Model Endpoints  ##################################
+
+# Endpoint to retreive all movies in the system
+@app.route('/movies',methods=["GET"])                
 def get_movies():
     movies = Movie.query.all()
     formatted_movies = [movie.format() for movie in movies]
@@ -16,51 +19,142 @@ def get_movies():
       'movies':formatted_movies
     })
 
-@app.route('/movies/<int:movie_id>')
+# Endpoint to retreive a specific movie with it's id
+@app.route('/movies/<int:movie_id>',methods=["GET"])
 def get_specific_movie(movie_id):
+  movie =  get_movie_if_exist(movie_id)
   return jsonify({
     'success':True,
-    'selected_movie': Movie.query.get(movie_id).format()
+    'selected_movie': movie.format()
   })
 
+# Endpoint to add a new movie
 @app.route('/movies',methods=['POST'])
 def add_movie():
   data  = request.get_json()
   try:
-    # print(data['description'])
-    # print(data['title'])
-    # print(data['release_date'])
-    # print(data['period'])
-    date_parts = data['release_date'].split(':')
-    # print(date_parts)
+    date_parts = data['release_date'].split('-')
     release_date = date(int(date_parts[0]),int(date_parts[1]),int(date_parts[2]))
-    # print(release_date)
     new_movie = Movie(data['title'],release_date,data['period'],data['description'])
   except:
     return abort(400)
 
-  try:
-    new_movie.insert()
+  
+  success = new_movie.insert()
+  if(success):
     return jsonify({
       'success':True
     })
-  except:
+  else:
     abort(500)
 
+# Enpoint to delete a movie with it's id
 @app.route('/movies/<int:movie_id>',methods=['DELETE'])
 def delete_movie(movie_id):
-  pass
+  deleted_movie = get_movie_if_exist(movie_id)
+  success = deleted_movie.delete()
+  if(success):
+    return jsonify({
+        'success': True
+    })
+  else:
+    abort(500)
 
+# Endpoint to update movie, given it's id
 @app.route('/movies/<int:movie_id>',methods=['PATCH'])
 def update_movie(movie_id):
-  pass
+  movie = get_movie_if_exist(movie_id)
+  data = request.get_json()
+  if('title' in data):
+    movie.title = data['title']
+  if('period' in data):
+    movie.period = data['period']
+  if('description' in data):
+    movie.description = data['description']
+  if('release_date' in data):
+    try:
+      date_parts = data['release_date'].split('-')
+      release_date = date(int(date_parts[0]),int(date_parts[1]),int(date_parts[2]))
+      movie.release_date = release_date
+    except:
+      abort(400)
+  success = movie.update()
+  updated_movie = Movie.query.get(movie_id)
+  if(success):
+    return jsonify({
+    'success':True,
+    'updated movie': updated_movie.format()
+    })
+  else:
+    abort(500)
 
+# Endpoint to get genres of movie with it's id
 @app.route('/movies/<int:movie_id>/genres',methods=['GET'])
-def retreive_movie_genres(movie_id):
-  pass
+def get_movie_genres(movie_id):
+  movie = get_movie_if_exist(movie_id)
+  genres = movie.get_genres()
+  formated_genres = [genre.format() for genre in genres]
+  return jsonify({
+    'success': True,
+    'genres' : formated_genres,
+    'movie': movie.format()
+  }) 
 
-# genres endpoints
-# tested
+# Endpoint to get actors of movie with it's id
+@app.route('/movies/<int:movie_id>/actors',methods=['GET'])
+def get_movie_actors(movie_id):
+  movie = get_movie_if_exist(movie_id)
+  actors = movie.get_actors()
+  formatted_actors = [actor.format() for actor in actors]
+  return jsonify({
+    'success': True,
+    'actors': formatted_actors
+  })
+
+# Endpoint to accosiate a movie to specific genre
+@app.route('/movies/<int:movie_id>/genres',methods=["POST"])
+def accosiate_genre_to_movie(movie_id):
+  movie = get_movie_if_exist(movie_id)
+  data = request.get_json()
+  try:
+    genre = Genre.query.get(data['genre_id'])
+    if(genre is None):
+      abort(404)
+    success = movie.add_genre(data['genre_id'])
+    if(success):
+      return jsonify({
+        'success':True
+      })
+    else:
+      abort(500)
+  except:
+    abort(400)
+
+# Endpoint to add actor to movie
+@app.route('/movies/<int:movie_id>/actors',methods=['POST'])
+def add_actor_to_movie(movie_id):
+  movie = get_movie_if_exist(movie_id)
+  data = request.get_json()
+  try:
+    actor = Actor.query.get(data['actor_id'])
+    if(actor is None):
+      abort(404)
+    success = movie.add_actor(int(data['actor_id']))
+    print(success)
+    if(success):
+      return jsonify({
+        'success': success
+      })
+    else:
+      abort(500)
+  except:
+    abort(400)
+
+
+#######################################################################################################
+######################################### Genre Model Endpoint  #######################################
+
+# Endpoint to add a new genre to the system
 @app.route('/genres',methods=['POST'])
 def add_genre():
   data = request.get_json()
@@ -70,15 +164,18 @@ def add_genre():
       new_genre.description = data['description']
   except:
     abort(400)
-  
-  status = new_genre.insert()
-  if(status=='success'):
+    
+  success = new_genre.insert()
+  if(success):
+    inserted_genre = Genre.query.filter_by(name= data['title']).all()[0].format()
     return jsonify({
-      'success': True
+      'success': True,
+      'new_genre': inserted_genre
     })
   else:
     abort(500)
-# tested
+
+# Endpoint to retreive all existance genres
 @app.route('/genres',methods=["GET"])
 def get_genres():
   genres = Genre.query.all()
@@ -91,25 +188,59 @@ def get_genres():
     'genres':formatted_genres
   })
 
+# Endpoint to retreive all accosiated movies to a given genre
 @app.route('/genres/<int:genre_id>/movies',methods=["GET"])
 def retrieve_genre_movies(genre_id):
-  pass
-
+  genre = get_genre_if_exist(genre_id)
+  movies = genre.associated_movies()
+  return jsonify({
+    'success': True,
+    'movies': movies
+  })
+ 
+# Endpoint to retreive a genre, given it's id
 @app.route('/genres/<int:genre_id>')
 def get_specific_genre(genre_id, methods=["GET"]):
-  pass
+  genre = get_genre_if_exist(genre_id)
+  return jsonify({
+    'success': True,
+    'selected_genre': genre.format()
+  })
 
+# Endpoint to delete a genre with it's id
 @app.route('/genres/<int:genre_id>',methods=["DELETE"])
 def delete_genre(genre_id):
-  pass
+  genre = get_genre_if_exist(genre_id)
+  deleted_genre = genre.format()
+  success = genre.delete()
+  if(success):
+    return jsonify({
+      'success': True,
+      'deleted_genre': deleted_genre
+    })
+  else:
+    abort(500)
 
+# Endpoint to update a genre
 @app.route('/genres/<int:genre_id>',methods=["PATCH"])
 def update_genre(genre_id):
-  pass
+  genre = get_genre_if_exist(genre_id)
+  data = request.get_json()
+  if('name' in data):
+    genre.name = data['name']
+  if('description' in data):
+    genre.description = data['description']
+  updated_genre = get_genre_if_exist(genre_id)
+  return jsonify({
+    'success': True,
+    'updated_genre': updated_genre
+  })
 
 
+######################################################################################################################
+#######################################  Actor Model Endpoints  ######################################################
 
-# Actor endpoints
+# Endpoint to add new actor to the system
 @app.route('/actors',methods=["POST"])
 def add_actor():
   data = request.get_json()
@@ -128,6 +259,7 @@ def add_actor():
   except:
     abort(500)
 
+# Endpoint to get all actors in the system
 @app.route('/actors',methods=["GET"])
 def get_actors():
   actors = Actor.query.all()
@@ -137,40 +269,90 @@ def get_actors():
     'actors': formatted_actors
   })
 
+# Endpoint to get an actor
 @app.route('/actors/<int:actor_id>',methods=["GET"])
 def get_apecific_actor(actor_id):
-  actor = Actor.query.get(actor_id)
-  if(actor == None):
-    abort(404)
-  else:
-    return jsonify({
-      'success': True,
-      'actors': actor.format()
-    })
+  actor = get_actor_if_exist(actor_id)
+  return jsonify({
+    'success': True,
+    'actors': actor.format()
+  })
 
-
+# Endpoint to delete actor
 @app.route('/actors/<int:actor_id>',methods=["DELETE"])
 def delete_actor(actor_id):
-  pass
+  actor = get_actor_if_exist(actor_id)
+  deleted_actor = actor.format()
+  success = actor.delete()
+  if(success):
+    return jsonify({
+      'success': True,
+      'deleted_actor': deleted_actor
+    })
+  else:
+    abort(500)
 
+# Endpoint to update information of a given actor
 @app.route('/actors/<int:actor_id>',methods=["PATCH"])
 def update_actor(actor_id):
-  pass
+  actor = get_actor_if_exist(actor_id)
+  data = request.get_json()
+  if('name' in data):
+    actor.name = data['name']
+  if('bio' in data):
+    actor.name = data['bio']
+  if('birthdate' in data):
+    try:
+      birthdate_parts = data['birthdate'].split("-")
+      birthdate = date(int(birthdate_parts[0]),int(birthdate_parts[1]),int(birthdate_parts[2]))
+      actor.birthdate = birthdate
+    except:
+      abort(400)
+  if('age' in data):
+    actor.age = data['age']
+  if('gender' in data):
+    actor.gender = data['gender']
+  
+  success = actor.update()
+  updated_actor = get_actor_if_exist(actor_id)
+  if(success):
+    return jsonify({
+      'success': True,
+      'updated_actor': updated_actor.format()
+    })
 
 @app.route('/actors/<int:actor_id>/movies',methods=["GET"])
 def get_actor_movies(actor_id):
-  pass
+  actor = get_actor_if_exist(actor_id)
+  movies = actor.get_movies()
+  return jsonify({
+    'success': True,
+    'movies': movies
+  })
 
+###############################################################################################################
+####################################### Helper Functions ######################################################
 
-# Movie_Genre endpoints
+def get_movie_if_exist(movie_id):
+  movie = Movie.query.get(movie_id)
+  if(movie is None):
+    abort(404)
+  return movie
 
+def get_genre_if_exist(genre_id):
+  genre = Genre.query.get(genre_id)
+  if(genre is None):
+    abort(404)
+  return genre
 
+def get_actor_if_exist(actor_id):
+  actor = Actor.query.get(actor_id)
+  if(actor == None):
+    abort(404)
+  return actor
 
-# acting Model endpoints
-
-
-
-# error handling
+################################################################################################################
+############################################### Error Handling #################################################
 @app.errorhandler(404)
 def not_found_404(error):
   return jsonify({
@@ -212,5 +394,7 @@ def unprocessable_entity(error):
     }),422
 
 
+#################################################################################################################
+########################################### Main ###############################################################
 if __name__ == '__main__':
   app.run()
