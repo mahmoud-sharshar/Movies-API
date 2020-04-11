@@ -1,16 +1,41 @@
-from flask import Flask, request, jsonify, abort
+import os
+from flask import Flask, request, jsonify, abort, session, Response, redirect
 from models import setup_db, Movie, Actor, Genre, Movie_Genre
 from datetime import date
+from auth_app import AuthError, requires_auth, setup_auth0, API_AUDIENCE
+from flask import session
+import requests
+AUTH0_CALLBACK_URL= 'http://127.0.0.1:5000/login-results'
+
 
 
 app = Flask(__name__)
 setup_db(app)
 
+
+app.config.update(SECRET_KEY=os.urandom(24))
+
+
+# auth0 = setup_auth0(app)
+
+@app.route('/login')
+def login():
+  return redirect("https://fsnd-shar-2.auth0.com/authorize?audience=movies&response_type=token&client_id=4yHgzJtE95g2335MHeRP5xESVp3a51Xc&redirect_uri=http://127.0.0.1:5000/login-results")
+ 
+
+
+@app.route('/login-results')
+def login_result():
+  return jsonify({
+      "success":True
+      })
+
 ################################################################################################
 #####################################  Movie Model Endpoints  ##################################
 
 # Endpoint to retreive all movies in the system
-@app.route('/movies',methods=["GET"])                
+@app.route('/movies',methods=["GET"])
+@requires_auth('get:movies')                
 def get_movies():
     movies = Movie.query.all()
     formatted_movies = [movie.format() for movie in movies]
@@ -21,6 +46,7 @@ def get_movies():
 
 # Endpoint to retreive a specific movie with it's id
 @app.route('/movies/<int:movie_id>',methods=["GET"])
+@requires_auth('get:movies')
 def get_specific_movie(movie_id):
   movie =  get_movie_if_exist(movie_id)
   return jsonify({
@@ -30,6 +56,7 @@ def get_specific_movie(movie_id):
 
 # Endpoint to add a new movie
 @app.route('/movies',methods=['POST'])
+@requires_auth('post:movies')
 def add_movie():
   data  = request.get_json()
   try:
@@ -50,6 +77,7 @@ def add_movie():
 
 # Enpoint to delete a movie with it's id
 @app.route('/movies/<int:movie_id>',methods=['DELETE'])
+@requires_auth('delete:movies')
 def delete_movie(movie_id):
   deleted_movie = get_movie_if_exist(movie_id)
   success = deleted_movie.delete()
@@ -62,6 +90,7 @@ def delete_movie(movie_id):
 
 # Endpoint to update movie, given it's id
 @app.route('/movies/<int:movie_id>',methods=['PATCH'])
+@requires_auth('patch:movies')
 def update_movie(movie_id):
   movie = get_movie_if_exist(movie_id)
   data = request.get_json()
@@ -90,6 +119,7 @@ def update_movie(movie_id):
 
 # Endpoint to get genres of movie with it's id
 @app.route('/movies/<int:movie_id>/genres',methods=['GET'])
+@requires_auth('get:movie-genres')
 def get_movie_genres(movie_id):
   movie = get_movie_if_exist(movie_id)
   genres = movie.get_genres()
@@ -102,6 +132,7 @@ def get_movie_genres(movie_id):
 
 # Endpoint to get actors of movie with it's id
 @app.route('/movies/<int:movie_id>/actors',methods=['GET'])
+@requires_auth('get:movie-actors')
 def get_movie_actors(movie_id):
   movie = get_movie_if_exist(movie_id)
   actors = movie.get_actors()
@@ -113,6 +144,7 @@ def get_movie_actors(movie_id):
 
 # Endpoint to accosiate a movie to specific genre
 @app.route('/movies/<int:movie_id>/genres',methods=["POST"])
+@requires_auth('post:genre-to-movie')
 def accosiate_genre_to_movie(movie_id):
   movie = get_movie_if_exist(movie_id)
   data = request.get_json()
@@ -132,6 +164,7 @@ def accosiate_genre_to_movie(movie_id):
 
 # Endpoint to add actor to movie
 @app.route('/movies/<int:movie_id>/actors',methods=['POST'])
+@requires_auth('post:actor-to-movie')
 def add_actor_to_movie(movie_id):
   movie = get_movie_if_exist(movie_id)
   data = request.get_json()
@@ -156,6 +189,7 @@ def add_actor_to_movie(movie_id):
 
 # Endpoint to add a new genre to the system
 @app.route('/genres',methods=['POST'])
+@requires_auth('post:genres')
 def add_genre():
   data = request.get_json()
   try:
@@ -177,6 +211,7 @@ def add_genre():
 
 # Endpoint to retreive all existance genres
 @app.route('/genres',methods=["GET"])
+@requires_auth('get:genres')
 def get_genres():
   genres = Genre.query.all()
   formatted_genres = []
@@ -190,6 +225,7 @@ def get_genres():
 
 # Endpoint to retreive all accosiated movies to a given genre
 @app.route('/genres/<int:genre_id>/movies',methods=["GET"])
+@requires_auth('get:genre-movies')
 def retrieve_genre_movies(genre_id):
   genre = get_genre_if_exist(genre_id)
   movies = genre.associated_movies()
@@ -200,6 +236,7 @@ def retrieve_genre_movies(genre_id):
  
 # Endpoint to retreive a genre, given it's id
 @app.route('/genres/<int:genre_id>')
+@requires_auth('get:genres')
 def get_specific_genre(genre_id, methods=["GET"]):
   genre = get_genre_if_exist(genre_id)
   return jsonify({
@@ -209,6 +246,7 @@ def get_specific_genre(genre_id, methods=["GET"]):
 
 # Endpoint to delete a genre with it's id
 @app.route('/genres/<int:genre_id>',methods=["DELETE"])
+@requires_auth('delete:genres')
 def delete_genre(genre_id):
   genre = get_genre_if_exist(genre_id)
   deleted_genre = genre.format()
@@ -223,6 +261,7 @@ def delete_genre(genre_id):
 
 # Endpoint to update a genre
 @app.route('/genres/<int:genre_id>',methods=["PATCH"])
+@requires_auth('patch:genres')
 def update_genre(genre_id):
   genre = get_genre_if_exist(genre_id)
   data = request.get_json()
@@ -242,6 +281,7 @@ def update_genre(genre_id):
 
 # Endpoint to add new actor to the system
 @app.route('/actors',methods=["POST"])
+@requires_auth('post:actors')
 def add_actor():
   data = request.get_json()
   try:
@@ -261,6 +301,7 @@ def add_actor():
 
 # Endpoint to get all actors in the system
 @app.route('/actors',methods=["GET"])
+@requires_auth('get:actors')
 def get_actors():
   actors = Actor.query.all()
   formatted_actors = [actor.format() for actor in actors]
@@ -271,6 +312,7 @@ def get_actors():
 
 # Endpoint to get an actor
 @app.route('/actors/<int:actor_id>',methods=["GET"])
+@requires_auth('get:actors')
 def get_apecific_actor(actor_id):
   actor = get_actor_if_exist(actor_id)
   return jsonify({
@@ -280,6 +322,7 @@ def get_apecific_actor(actor_id):
 
 # Endpoint to delete actor
 @app.route('/actors/<int:actor_id>',methods=["DELETE"])
+@requires_auth('delete:actors')
 def delete_actor(actor_id):
   actor = get_actor_if_exist(actor_id)
   deleted_actor = actor.format()
@@ -294,6 +337,7 @@ def delete_actor(actor_id):
 
 # Endpoint to update information of a given actor
 @app.route('/actors/<int:actor_id>',methods=["PATCH"])
+@requires_auth('patch:actors')
 def update_actor(actor_id):
   actor = get_actor_if_exist(actor_id)
   data = request.get_json()
@@ -322,6 +366,7 @@ def update_actor(actor_id):
     })
 
 @app.route('/actors/<int:actor_id>/movies',methods=["GET"])
+@requires_auth('get:actor-movies')
 def get_actor_movies(actor_id):
   actor = get_actor_if_exist(actor_id)
   movies = actor.get_movies()
@@ -393,6 +438,14 @@ def unprocessable_entity(error):
       "error": 422
     }),422
 
+@app.errorhandler(AuthError)
+def unprocessable(error):
+    return jsonify({
+                    "success": False, 
+                    "error": 401,
+                    "message": "unAuthoraized"
+                    }), 401
+            
 
 #################################################################################################################
 ########################################### Main ###############################################################
