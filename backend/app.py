@@ -64,9 +64,9 @@ def add_movie():
     release_date = date(int(date_parts[0]),int(date_parts[1]),int(date_parts[2]))
     new_movie = Movie(data['title'],release_date,data['period'],data['description'])
   except:
-    return abort(400)
+    abort(400)
 
-  
+
   success = new_movie.insert()
   if(success):
     return jsonify({
@@ -193,7 +193,7 @@ def add_actor_to_movie(movie_id):
 def add_genre():
   data = request.get_json()
   try:
-    new_genre = Genre(data['title'])
+    new_genre = Genre(data['name'])
     if('description' in data):
       new_genre.description = data['description']
   except:
@@ -201,7 +201,7 @@ def add_genre():
     
   success = new_genre.insert()
   if(success):
-    inserted_genre = Genre.query.filter_by(name= data['title']).all()[0].format()
+    inserted_genre = Genre.query.filter_by(name= data['name']).all()[0].format()
     return jsonify({
       'success': True,
       'new_genre': inserted_genre
@@ -269,11 +269,15 @@ def update_genre(genre_id):
     genre.name = data['name']
   if('description' in data):
     genre.description = data['description']
-  updated_genre = get_genre_if_exist(genre_id)
-  return jsonify({
-    'success': True,
-    'updated_genre': updated_genre
-  })
+  success = genre.update()
+  if(success):
+    updated_genre = get_genre_if_exist(genre_id)
+    return jsonify({
+      'success': True,
+      'updated_genre': updated_genre.format()
+    })
+  else:
+    abort(500)
 
 
 ######################################################################################################################

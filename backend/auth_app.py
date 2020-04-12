@@ -144,6 +144,13 @@ def verify_decode_jwt(token):
                 'description': 'Unable to find the appropriate key.'
             }, 400)
 
+def validate_token_structure(token):
+    parts = token.split('.')
+    if(len(parts) != 3):
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorization header must include valid token structure (*.*.*).'
+        }, 401)
 
 
 def requires_auth(permission=''):
@@ -151,6 +158,7 @@ def requires_auth(permission=''):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
+            validate_token_structure(token)
             payload = verify_decode_jwt(token)
             check_permissions(permission, payload)
             return f(*args, **kwargs)
