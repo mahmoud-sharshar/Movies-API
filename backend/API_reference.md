@@ -5,22 +5,35 @@ This API is designed to manage movies company that is responsible for creating m
 
 ##  Getting Started
 #### Base URL 
- The API backend is hosted at  `https://fsnd-movie-api.herokuapp.com`. 
+ The API backend is hosted at  https://fsnd-movie-api.herokuapp.com. 
 #### Authentication 
-- This API allows access to three roles to a specific enpoints based on permissions assigned to them.
-- in the request, it must be login to the system before the request and put jwt access token to authorization header in the request to gain access to the system.
-- Roles
-	- Casting Assistant
-	    - Can view actors, movies and genres
-    -Casting Director
-        - All permissions a Casting Assistant has and…
-        - Add or delete an actor from the database
-        - Modify actors, movies or genres
-    - Executive Producer
-        - All permissions a Casting Director has and…
-        - Add or delete a movie from the database.
-        - Add or delete a genre from the database.
-
+<ul>
+<li> This API allows access to three roles to a specific enpoints based on permissions assigned to them.</li>
+<li> In the request, it must be login to the system before the request and put jwt access token to authorization header in the request to gain access to the system.</li>
+<li> Roles
+	<ul>
+	<li>Casting Assistant
+		<ul>
+			<li>Can view actors, movies and genres.</li>
+		</ul>
+	</li>
+	<li>Casting Director
+		<ul>
+			<li>All permissions a Casting Assistant has.</li>
+			<li>Add or delete an actor from the database.</li>
+			<li>Modify actors, movies or genres.</li>
+		</ul>
+	</li>
+	<li>Executive Producer
+		<ul>
+		<li>All permissions a Casting Director has.</li>
+		<li>Add or delete a movie from the database.</li>
+		<li>Add or delete a genre from the database.</li>
+		</ul>
+	</li>
+	</ul>
+</li>	
+</ul>
 
 ##  Error Handling
 Errors are returned as JSON objects in the following format:
