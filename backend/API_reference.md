@@ -5,7 +5,7 @@ This API is designed to manage movies company that is responsible for creating m
 
 ##  Getting Started
 #### Base URL 
- The backend app is hosted at  `??????????????????`. 
+ The API backend is hosted at  `https://fsnd-movie-api.herokuapp.com`. 
 #### Authentication 
 - This API allows access to three roles to a specific enpoints based on permissions assigned to them.
 - in the request, it must be login to the system before the request and put jwt access token to authorization header in the request to gain access to the system.
@@ -54,14 +54,14 @@ sample error response:
 - General
     - login to the system
 - sample
-    - Base url:  `curl http://????/` 
+    - Base url:  `curl https://fsnd-movie-api.herokuapp.com/` 
 	- localhost: `curl http://127.0.0.1:5000/`
 
 #### GET `\login`
 - General
     - login to the system
 - sample
-    - Base url:  `curl http://????/login` 
+    - Base url:  `curl https://fsnd-movie-api.herokuapp.com/login` 
 	- localhost: `curl http://127.0.0.1:5000/login`
 
 ### Movie Endpoints
@@ -70,10 +70,10 @@ sample error response:
 - General 
 	- Fetches all movies in the system.
 	- Request Arguments: None
-	- Returns: success value and a list of movies objects formatted in a readable way.
+	- Returns: success value and a list of movies objects in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header ot the request. 
 - Sample: 
-	- Base url:  `curl http://????/movies -X GET -H "Authorization:Barear {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/movies -X GET -H "Authorization:Barear {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies -X GET -H "Authorization:Barear {access_token}`
 ```
 {
@@ -135,7 +135,7 @@ sample error response:
 	- Returns: success value and a selected movie object in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/movies/1 -X GET -H "Authorization:Barear {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/movies/1 -X GET -H "Authorization:Barear {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies/1 -X GET -H "Authorization:Barear {access_token}`
 ```
 {
@@ -165,7 +165,7 @@ sample error response:
 	- Returns: success value, selected movie information and all genres objects of this movie in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/movies/1/genres -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/movies/1/genres -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies/1/genres -X GET -H "Authorization:Bearer {access_token}" `
 ```
 {
@@ -217,7 +217,7 @@ sample error response:
 	- Returns: success value and all actors information in this movie in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/movies/2/actors -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/movies/2/actors -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies/2/actors -X GET -H "Authorization:Bearer {access_token}" `
 ```
 {
@@ -297,7 +297,7 @@ sample error response:
 	- Returns: succes value and deleted movie information.
 	- Authorization: Executive Producer only can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/movies/{movie_id} -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/movies/{movie_id} -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies/{movie_id} -X GET -H "Authorization:Bearer {access_token}"`
 ```
 {
@@ -320,8 +320,9 @@ sample error response:
 	- creates new movie with specified arguements.
 	- Request Arguements: title, period, description, release_date, cover_image_link(optional), video_link(optional).
 	- Returns: success value and newly inserted movie.
+	- Authorization: Executive Producer only can access this endpoint and access token must be specified in the header of the request. 
 - sample: 
-	- Base url; `curl http://?????/movies -X POST -H "Content-Type: application/json, Authorization:Bearer {access_token}" -d '{"title": "Demo", "period": "2h33m", "release_date": "2020-4-22", "description": "this is demo for adding movie"}'`
+	- Base url; `curl https://fsnd-movie-api.herokuapp.com/movies -X POST -H "Content-Type: application/json, Authorization:Bearer {access_token}" -d '{"title": "Demo", "period": "2h33m", "release_date": "2020-4-22", "description": "this is demo for adding movie"}'`
 	- localhost: `curl http://127.0.0.1:5000/movies -X POST -H "Content-Type: application/json,Authorization:Bearer {access_token} " -d '{"title": "Demo", "period": "2h33m", "release_date": "2020-4-22", "description": "this is demo for adding movie"}'`
 ```
 {
@@ -344,8 +345,10 @@ sample error response:
 	- associate a movie to a specific genre that previously added in the system.
 	- Request Arguements: genre_id (must be a valid id of existing genre).
 	- Returns: success value.
+	- Authorization: Executive Producer only can access this endpoint and access token must be specified in the header of the request. 
+
 - sample: 
-	- Base url; `curl http://?????//movies/2/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}'`
+	- Base url; `curl https://fsnd-movie-api.herokuapp.com//movies/2/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}'`
 	- localhost: `curl http://127.0.0.1:5000/movies/2/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}' `
 ```
 {
@@ -358,8 +361,9 @@ sample error response:
 	- add a actor to a movie such that actor is existent in the system.
 	- Request Arguements: actor_id (must be a valid id of existing actor).
 	- Returns: success value.
+	- Authorization: Executive Producer only can access this endpoint and access token must be specified in the header of the request. 
 - sample: 
-	- Base url; `curl http://?????//movies/2/actors -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}'`
+	- Base url; `curl https://fsnd-movie-api.herokuapp.com//movies/2/actors -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}'`
 	- localhost: `curl http://127.0.0.1:5000/movies/2/actors -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"genre_id": 1}' `
     - if the actor is not exist in this movie
     ```
@@ -367,7 +371,7 @@ sample error response:
         "success": true
     }
     ```
-    - it the actor is already exist in this movie
+    - if the actor is already exist in this movie
     ```
     {
     "message": "actor is alreay exist in this movie",
@@ -380,9 +384,9 @@ sample error response:
 	- modify information of existing movie with specified parameters.
 	- Request Arguement: title, period, release_date, description, video_link, cover_image_link(all arguements are optional).
 	- Returns: success value and updated movie information.
-    - Authorization: Executive Producer can only access this endpoint and access token must be specified in the header of the request. 
+  - Authorization: Executive Producer and Casting Director can access this endpoint and access token must be specified in the header of the request. 
 - Sample : `
-	- Base url `curl http://????/movies/{movie_id} -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "title": "demo", "period": "2h32m", "release_date": "2020-3-4", "description": "this is demo!"}'`
+	- Base url `curl https://fsnd-movie-api.herokuapp.com/movies/{movie_id} -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "title": "demo", "period": "2h32m", "release_date": "2020-3-4", "description": "this is demo!"}'`
 	- localhost:  `curl http://127.0.0.1:5000/movies/{movie_id} -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "title": "demo", "period": "2h32m", "release_date": "2020-3-4", "description": "this is demo!"}'`
 ```
 {
@@ -401,6 +405,7 @@ sample error response:
 ```
 
 ### Actor Endpoints
+
 #### GET `/actors`
 - Genrel
 	- bring all actors that was added in the system.
@@ -408,7 +413,7 @@ sample error response:
 	- Returns: success value, list of actors objects in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header ot the request. 
 - Sample: 
-	- Base url:  `curl http://????/actors-X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/actors-X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies -X GET -H "Authorization:Bearer {access_token}`
 ```
 {
@@ -498,7 +503,7 @@ sample error response:
 	- Returns: success value and a selected actor object with his movies in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/actors/1 -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/actors/1 -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/actors/1 -X GET -H "Authorization:Bearer {access_token}`
 ```
 {
@@ -552,7 +557,7 @@ sample error response:
 	- Returns: success value and all movies information of this actor in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/actors/2/movies -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/actors/2/movies -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/actors/2/movies -X GET -H "Authorization:Bearer {access_token}" `
 ```
 {
@@ -597,7 +602,7 @@ sample error response:
 	- Returns: succes value and deleted actor information.
 	- Authorization: Executive Producer and Casting Director can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/actors/{actor_id} -X DELETE -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/actors/{actor_id} -X DELETE -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/movies/{movie_id} -X DELETE -H "Authorization:Bearer {access_token}`
 ```
 {
@@ -622,7 +627,7 @@ sample error response:
 	- Returns: success value.
     - Authorization: Executive Producer and Casting Director can access this endpoint and access token must be specified in the header of the request. 
 - Sample : `
-	- Base url `curl http://????/actors -X POST -H "Content-Type: application/json" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
+	- Base url `curl https://fsnd-movie-api.herokuapp.com/actors -X POST -H "Content-Type: application/json" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
 	- localhost:  `curl http://127.0.0.1:5000/actors -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
 ```
 {
@@ -637,7 +642,7 @@ sample error response:
 	- Returns: success value and updated actor information.
     - Authorization: Executive Producer and Casting Director can access this endpoint and access token must be specified in the header of the request. 
 - Sample : `
-	- Base url `curl http://????/actors/{actor_id} -X POST -H "Content-Type: application/json" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
+	- Base url `curl https://fsnd-movie-api.herokuapp.com/actors/{actor_id} -X POST -H "Content-Type: application/json" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
 	- localhost:  `curl http://127.0.0.1:5000/actors/{actor_id} -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "name": "mahmoud Hamed", "age": "22", "gender": "male", "bio": "my bio is beautiful!", "birthdate": "1998-5-29"}'`
 ```
 {
@@ -664,7 +669,7 @@ sample error response:
 	- Returns: success value, list of genres objects in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header ot the request. 
 - Sample: 
-	- Base url:  `curl http://????/genres -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/genres -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/genres-X GET -H "Authorization:Bearer {access_token}`
 ```
 {
@@ -718,7 +723,7 @@ sample error response:
 	- Returns: success value and all movies information of this genre in json format.
 	- Authorization: all roles can access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/genres/2/movies -X GET -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/genres/2/movies -X GET -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/genres/2/movies -X GET -H "Authorization:Bearer {access_token}" `
 ```
 {
@@ -764,7 +769,7 @@ sample error response:
 	- Returns: success value and newly inserted genre
     - Authorization: Executive Producer  can only access this endpoint and access token must be specified in the header of the request. 
 - Sample : `
-	- Base url `curl http://????/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"description": "this demo for adding new genre", "name": "Demo_genre"}'`
+	- Base url `curl https://fsnd-movie-api.herokuapp.com/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"description": "this demo for adding new genre", "name": "Demo_genre"}'`
 	- localhost:  `curl http://127.0.0.1:5000/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{"description": "this demo for adding new genre", "name": "Demo_genre"}'`
 ```
 {
@@ -784,7 +789,7 @@ sample error response:
 	- Returns: succes value and deleted genre information.
 	- Authorization: Executive Producer can only access this endpoint and access token must be specified in the header of the request. 
 - Sample: 
-	- Base url:  `curl http://????/genres/{genre_id} -X DELETE -H "Authorization:Bearer {access_token}"` 
+	- Base url:  `curl https://fsnd-movie-api.herokuapp.com/genres/{genre_id} -X DELETE -H "Authorization:Bearer {access_token}"` 
 	- localhost: `curl http://127.0.0.1:5000/genres/{genre_id} -X DELETE -H "Authorization:Bearer {access_token}`
 ```
 {
@@ -804,7 +809,7 @@ sample error response:
 	- Returns: success value and updated genre
     - Authorization: Executive Producer  can only access this endpoint and access token must be specified in the header of the request. 
 - Sample : `
-	- Base url `curl http://????/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "description": "this demo for updating a genre","name": "Demo_update_genre"}'`
+	- Base url `curl https://fsnd-movie-api.herokuapp.com/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "description": "this demo for updating a genre","name": "Demo_update_genre"}'`
 	- localhost:  `curl http://127.0.0.1:5000/genres -X POST -H "Content-Type: application/json" -H "Authorization:Bearer {access_token}" -d '{ "description": "this demo for updating a genre","name": "Demo_update_genre"}'`
 ```
 {

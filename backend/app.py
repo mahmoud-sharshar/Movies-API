@@ -21,7 +21,7 @@ app.config.update(SECRET_KEY=os.urandom(24))
 @app.route('/')
 @app.route('/login')
 def login():
-  return redirect("https://fsnd-shar-2.auth0.com/authorize?audience=movies&response_type=token&client_id=4yHgzJtE95g2335MHeRP5xESVp3a51Xc&redirect_uri=http://127.0.0.1:5000/login-results")
+  return redirect("https://fsnd-shar-2.auth0.com/authorize?audience=movies&response_type=token&client_id=4yHgzJtE95g2335MHeRP5xESVp3a51Xc&redirect_uri=https://fsnd-movie-api.herokuapp.com/login-results")
  
 
 

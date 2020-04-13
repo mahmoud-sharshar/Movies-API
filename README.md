@@ -13,11 +13,27 @@ The `./backend` directory contains a completed Flask and SQLAlchemy server that 
 
 ### Frontend
 
-frontend of the api isn't implemeted yet.
+- frontend of the api isn't implemeted yet.
 
 
 ## Usage of API
-- The API is hosted at `` and if you want to run it locally, follow the instructions in `./backend` README
+- The API is hosted at `https://fsnd-movie-api.herokuapp.com` and if you want to run it locally, follow the instructions in `./backend` README
 
-- follow the following steps to try the API on the host:
-    -  
+- follow the following steps to try the API:
+    - login into the system `https://fsnd-movie-api.herokuapp.com/` using one of the following emails:
+        - For Executive Producer Role
+            - Email: `company.executive.producer@movie.com`
+            - Password: `FSNd2020` 
+        - For Casting Assistant Role
+            - Email: `company.casting.assistant@movie.com`
+            - Password: `FSNd2020`
+        - For Casting Director Role
+            - Email: `company.casting.director@movie.com`
+            - Password: `FSNd2020`
+    
+    -  Save access_token that appears in the returned url as following:
+        - https://fsnd-movie-api.herokuapp.com/login-results#access_token=`{save this}`&expires_in=7200&token_type=Bearer
+    
+    - use curl or postman to send request to a specific endpoint with access_token included in the header of the request.
+
+    - use API_REFERENCE for the guide to use endpoints.
