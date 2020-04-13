@@ -52,4 +52,4 @@ Setting the `FLASK_ENV` variable to `development` will detect file changes and r
 
 ## API REFERENCE
 
-Description of each endpoints and how to use them can be found in the api reference file.
+- Description of all endpoints and how to use them can be found in [`API_REFERENCE`](./API_reference.md).
