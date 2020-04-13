@@ -18,6 +18,7 @@ app.config.update(SECRET_KEY=os.urandom(24))
 
 # auth0 = setup_auth0(app)
 
+@app.route('/')
 @app.route('/login')
 def login():
   return redirect("https://fsnd-shar-2.auth0.com/authorize?audience=movies&response_type=token&client_id=4yHgzJtE95g2335MHeRP5xESVp3a51Xc&redirect_uri=http://127.0.0.1:5000/login-results")
@@ -63,14 +64,20 @@ def add_movie():
     date_parts = data['release_date'].split('-')
     release_date = date(int(date_parts[0]),int(date_parts[1]),int(date_parts[2]))
     new_movie = Movie(data['title'],release_date,data['period'],data['description'])
+    if('video_link' in data):
+      new_movie.video_link = video_link
+    if('cover_image_link' in data):
+      new_movie.cover_image_link = data['cover_image_link']
   except:
     abort(400)
 
 
   success = new_movie.insert()
   if(success):
+    inserted_movie = Movie.query.filter(Movie.title == data['title']).all()[0].format()
     return jsonify({
-      'success':True
+      'success':True,
+      'new_movie': inserted_movie
     })
   else:
     abort(500)
@@ -79,11 +86,13 @@ def add_movie():
 @app.route('/movies/<int:movie_id>',methods=['DELETE'])
 @requires_auth('delete:movies')
 def delete_movie(movie_id):
-  deleted_movie = get_movie_if_exist(movie_id)
-  success = deleted_movie.delete()
+  movie = get_movie_if_exist(movie_id)
+  deleted_movie = movie.format()
+  success = movie.delete()
   if(success):
     return jsonify({
-        'success': True
+        'success': True,
+        "deleted_movie": deleted_movie
     })
   else:
     abort(500)
@@ -145,7 +154,7 @@ def get_movie_actors(movie_id):
 # Endpoint to accosiate a movie to specific genre
 @app.route('/movies/<int:movie_id>/genres',methods=["POST"])
 @requires_auth('post:genre-to-movie')
-def accosiate_genre_to_movie(movie_id):
+def associate_genre_to_movie(movie_id):
   movie = get_movie_if_exist(movie_id)
   data = request.get_json()
   try:
@@ -158,7 +167,10 @@ def accosiate_genre_to_movie(movie_id):
         'success':True
       })
     else:
-      abort(500)
+      return jsonify({
+        'success': True,
+        'message': 'genre is alreay associated with this movie'
+      })
   except:
     abort(400)
 
@@ -173,13 +185,16 @@ def add_actor_to_movie(movie_id):
     if(actor is None):
       abort(404)
     success = movie.add_actor(int(data['actor_id']))
-    print(success)
+    # print(success)
     if(success):
       return jsonify({
         'success': success
       })
     else:
-      abort(500)
+      return jsonify({
+        'success': True,
+        'message': 'actor is alreay exist in this movie'
+      })
   except:
     abort(400)
 

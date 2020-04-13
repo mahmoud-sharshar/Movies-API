@@ -3,18 +3,24 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-database_name = "movies"
-database_path = "postgres://{}@{}/{}".format('postgres:20211998','localhost:5432', database_name)
+
+database_path = os.environ['DATABASE_URL']
+
+# database_path = "postgres://{}@{}/{}".format('postgres:20211998','localhost:5432', database_name)
+# DATABASE_URL=postgres://postgres:20211998@localhost:5432/movies
+# database_name = "movies"
 
 db = SQLAlchemy()
 migrate = Migrate()
-def setup_db(app,database_path=database_path):
+def setup_db(app, database_path=database_path, test=False):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    # db.create_all()
-    migrate.init_app(app, db)
+    if(test):
+        db.create_all()
+    else:
+        migrate.init_app(app, db)
     
 
 def insert_into_db(model:db.Model)->bool:
@@ -231,6 +237,7 @@ class Actor(db.Model):
         for role in self.movies:
             movies.append(Movie.query.get(role.movie_id).format())
         return movies
+
 # roles of actors
 # Acting Model is acossiation table to represent many to many relation ship between Actor Model and Movie Model
 class Acting(db.Model):
