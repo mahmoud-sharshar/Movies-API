@@ -5,16 +5,18 @@ from flask_sqlalchemy import SQLAlchemy
 
 from models import setup_db, Movie, Actor, Genre, Movie_Genre
 from app import app
+from auth_app import setup_auth0
+from dotenv import load_dotenv
+
 
 class MovieTestCase(unittest.TestCase):
     """This class represents the Movie test case"""
     def setUp(self):
         """Define test variables and initialize app."""
         self.client = app.test_client
-        self.database_name = "movies_test"
-        self.database_path = "postgres://{}@{}/{}".format('postgres:20211998','localhost:5432', self.database_name)
+        self.database_path = os.getenv('DATABASE_URL_TEST')
         setup_db(app, self.database_path,True)
-        self.access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlVvZkhNTmlqNjFONWU4bHNkWHl5eSJ9.eyJpc3MiOiJodHRwczovL2ZzbmQtc2hhci0yLmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDExMjEzNTk5NjA1NzYxNjE0ODA0OSIsImF1ZCI6WyJtb3ZpZXMiLCJodHRwczovL2ZzbmQtc2hhci0yLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE1ODY2OTQ3NTgsImV4cCI6MTU4NjcwMTk1OCwiYXpwIjoiNHlIZ3pKdEU5NWcyMzM1TUhlUlA1eEVTVnAzYTUxWGMiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTpnZW5yZXMiLCJkZWxldGU6bW92aWVzIiwiZ2V0OmFjdG9yLW1vdmllcyIsImdldDphY3RvcnMiLCJnZXQ6Z2VucmUtbW92aWVzIiwiZ2V0OmdlbnJlcyIsImdldDptb3ZpZS1hY3RvcnMiLCJnZXQ6bW92aWUtZ2VucmVzIiwiZ2V0Om1vdmllcyIsInBhdGNoOmFjdG9ycyIsInBhdGNoOmdlbnJlcyIsInBhdGNoOm1vdmllcyIsInBvc3Q6YWN0b3JzIiwicG9zdDphY3Rvci10by1tb3ZpZSIsInBvc3Q6Z2VucmVzIiwicG9zdDpnZW5yZS10by1tb3ZpZSIsInBvc3Q6bW92aWVzIl19.LPGJCU0UVsIrNqVrgCZfsJzcM7WQZmmxE770liqEulJrcNgTtFA7xQXuUbZFRfF4B024pT5sWt99r-NOt8QSD2nYOTjX7ky-7U-AZu1mDg2EV3XHWTpGVE7FSLqCy5AitWrQRn0FL8MrsrSx3l3IxjhpmwX-S_gC959TX8N2CdchhW_ASKv6LG6ZnTeC3a8PCKcbqzoH1MVMfVpQXqD0QDpRg6T_ph8zg4sokxmli_sVyjz4oFLWn7L-rtysSkxZOcZqGLYMxYhS53j04L5MCa6NKHBGPzjndJHk--Z_iALPSb92dup586of_mGUsnlLNcfUX9w6QZwjrShbThTWuQ"
+        self.access_token = os.getenv('ACCESS_TOKEN')
         self.authorized_header = {
                 "Authorization": "Bearer " + self.access_token
                 }
@@ -287,4 +289,6 @@ class MovieTestCase(unittest.TestCase):
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
+    load_dotenv()
+    setup_auth0()
     unittest.main()

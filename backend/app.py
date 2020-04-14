@@ -2,26 +2,27 @@ import os
 from flask import Flask, request, jsonify, abort, session, Response, redirect
 from models import setup_db, Movie, Actor, Genre, Movie_Genre
 from datetime import date
-from auth_app import AuthError, requires_auth, setup_auth0, API_AUDIENCE
+from auth_app import AuthError, requires_auth, setup_auth0, API_AUDIENCE, AUTH0_DOMAIN, CLIENT_ID,AUTH0_CALLBACK_URL
 from flask import session
 import requests
-AUTH0_CALLBACK_URL= 'http://127.0.0.1:5000/login-results'
+from dotenv import load_dotenv
 
+load_dotenv()
 
 
 app = Flask(__name__)
 setup_db(app)
-
-
-app.config.update(SECRET_KEY=os.urandom(24))
+# app.config.update(SECRET_KEY=os.urandom(24))
 
 
 # auth0 = setup_auth0(app)
 
+
 @app.route('/')
 @app.route('/login')
 def login():
-  return redirect("https://fsnd-shar-2.auth0.com/authorize?audience=movies&response_type=token&client_id=4yHgzJtE95g2335MHeRP5xESVp3a51Xc&redirect_uri=https://fsnd-movie-api.herokuapp.com/login-results")
+  return redirect("https://{}/authorize?audience={}&response_type=token&client_id={}&redirect_uri={}".
+                  format(AUTH0_DOMAIN, API_AUDIENCE, CLIENT_ID, AUTH0_CALLBACK_URL))
  
 
 
@@ -29,7 +30,7 @@ def login():
 def login_result():
   return jsonify({
       "success":True
-      })
+    })
 
 ################################################################################################
 #####################################  Movie Model Endpoints  ##################################

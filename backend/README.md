@@ -32,10 +32,8 @@ This will install all of the required packages  within the `requirements.txt` fi
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 
 ## Database Setup
-With Postgres running, From terminal run:
-```bash
-export DATABASE_URL={your_database_url}
-```
+- With Postgres running, create a new database for the application.
+- Replace the value of `DATABASE_URL` variable in [`.env`](./.env) file with the database url of newly created database.
 
 ## Running the server Locally
 
@@ -44,12 +42,30 @@ From within the `backend` directory first ensure you are working using your crea
 To run the server, execute:
 
 ```bash
-export FLASK_ENV=development
 python app.py
 ```
-
+or 
+```bash
+flask run
+```
 Setting the `FLASK_ENV` variable to `development` will detect file changes and restart the server automatically.
 
 ## API REFERENCE
 
 - Description of all endpoints and how to use them can be found in [`API_REFERENCE`](./API_reference.md).
+
+## Testing
+To run test cases in [`test_app.py`](./test_app.py), follow the following steps:
+- With Postgres running, create a new database for testing.
+- Replace the value of `DATABASE_URL_TEST` variable in [`.env`](./.env) file with the database url of newly created database.
+- Sign in to the hosted application with the following credintials:
+    - Email: `company.executive.producer@movie.com`
+    - Password: `FSNd2020` 
+- Save access_token after login and Replace the value of `ACCESS_TOKEN` variable in [`.env`](./.env) file with the saved access_token.
+- From within the `backend` directory first ensure you are working using your created virtual environment.
+
+- execute:
+
+    ```bash
+    python test_app.py
+    ```

@@ -3,8 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-
-database_path = os.environ['DATABASE_URL']
+database_path = os.getenv('DATABASE_URL')
 
 # database_path = "postgres://{}@{}/{}".format('postgres:20211998','localhost:5432', database_name)
 # DATABASE_URL=postgres://postgres:20211998@localhost:5432/movies

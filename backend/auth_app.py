@@ -7,30 +7,28 @@ from flask import session
 from werkzeug.exceptions import HTTPException
 from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
+import os
 
+AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
+ALGORITHMS = os.getenv('ALGORITHMS')
+API_AUDIENCE = os.getenv("API_AUDIENCE")
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+AUTH0_CALLBACK_URL = os.getenv('AUTH0_CALLBACK_URL')
 
-AUTH0_DOMAIN = "fsnd-shar-2.auth0.com"
-ALGORITHMS = ['RS256']
-API_AUDIENCE = "movies"
-CLIENT_ID = '4yHgzJtE95g2335MHeRP5xESVp3a51Xc'
-CLIENT_SECRET = 'CtupBT29bM9bEZa_wV0s_aknBo5upvLmwcn5tcOtQB9RttnwgkaG9vn9gaRNEa8R'
-
-
-def setup_auth0(app):
-    oauth = OAuth(app)
-
-    auth0 = oauth.register(
-        'auth0',
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        api_base_url='https://fsnd-shar-2.auth0.com',
-        access_token_url='https://fsnd-shar-2.auth0.com/oauth/token',
-        authorize_url='https://fsnd-shar-2.auth0.com/authorize',
-        client_kwargs={
-        'scope': 'openid profile email',
-        },
-    )
-    return auth0
+def setup_auth0():
+    global AUTH0_DOMAIN
+    global ALGORITHMS
+    global API_AUDIENCE
+    global CLIENT_ID
+    global CLIENT_SECRET
+    global AUTH0_CALLBACK_URL
+    AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
+    ALGORITHMS = os.getenv('ALGORITHMS')
+    API_AUDIENCE = os.getenv("API_AUDIENCE")
+    CLIENT_ID = os.getenv('CLIENT_ID')
+    CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+    AUTH0_CALLBACK_URL = os.getenv('AUTH0_CALLBACK_URL')
 
 ## AuthError Exception
 
